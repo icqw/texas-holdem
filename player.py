@@ -63,7 +63,7 @@ def doListen(name):
     '''
     
     global ws
-    ws = create_connection("ws://116.62.203.120")
+#    ws = create_connection("ws://116.62.203.120")
     ws = create_connection("ws://thegame.trendmicro.com.cn")
     ws.send(json.dumps({
         "eventName": "__join",

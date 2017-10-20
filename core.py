@@ -17,12 +17,17 @@ def get_rank(s_player, s_player_bit, self_bit):
     rank = xx.index(self_bit)
     return rank
 
-def get_info(data, debug):
-    
+
+def get_card(data):
     table_card = [Card.new(_[0]+_[1].lower())  for _ in  data['game']['board']] 
     self_card = [Card.new(_[0]+_[1].lower())  for _ in  data['self']['cards']] 
+    return table_card, self_card
+
+def get_player(data):
+    
+    
     round_count = data['game']['roundCount']
-    n_player = len(data['game']['players'])
+    #n_player = len(data['game']['players'])
     s_player = 0
     s_player_bit = []
     self_bit = data['self']['chips']
@@ -34,37 +39,45 @@ def get_info(data, debug):
             s_player_bit.append(i['chips'])  
     rank = get_rank(s_player, s_player_bit, self_bit)
 
-    if debug:
-        print "======= {r} =======".format(r=round_count)
-        print round_count
-        print n_player
-        print s_player
-        print s_player_bit
-        Card.print_pretty_cards(table_card + self_card)
-        print "======= {r} =======".format(r=round_count)
-    return table_card , self_card, rank, s_player, round_count
+    return  rank, s_player, round_count
     
 def get_betCount(data):
     return data['game']['betCount']
 
+def get_minBet(data):
+    return data['self']['minBet']
 
 def ai_action(data, debug = False):
 
-    table_card , self_card, rank, s_player, round_count = get_info(data, debug = debug)
+    rank, s_player, round_count = get_player(data)
+    table_card , self_card =  get_card(data)
     betCount = get_betCount(data)
+    min_bet = get_minBet(data)
+    print "Survive player : {n}".format(n = s_player)
+    print "Sparrow ranking: {n}".format(n = rank)    
+    print "Total BetCount : {n}".format(n = betCount)    
+    print "min_bet        : {n}".format(n = min_bet)
+    
     gamma = 0
     beta = 0
-
     
     if round_count > 5 and rank > 5:
-        gamma = 1000
-        beta = 2000
-    if rank > 7:
-        beta = 2000
-
-    print "Survive player : {n}".format(n = s_player)
-    print "Sparrow ranking: {n}".format(n = rank)
+        gamma += 1000
+        beta += 1000
     
+    if rank > 7:
+        beta += 500
+    
+    if s_player >= 8 and min_bet > 200:
+        gamma += -1000
+        beta += -1000
+    
+    if s_player >= 8 and min_bet > 400:
+        gamma += -1000
+        beta += -1000
+        
+        
+
     if len(table_card + self_card) >= 5:
         evaluator = Evaluator()
         pscore = evaluator.evaluate(table_card, self_card)
@@ -73,9 +86,9 @@ def ai_action(data, debug = False):
         
         if pscore > 6000 + beta:
             return "fold"
-        elif pscore > 5000 + gamma:
+        elif pscore > 4000 + gamma:
             return "call"
-        elif pscore > 2000 + gamma:
+        elif pscore > 2000:
             return "raise"
         else:
             return "allin"
