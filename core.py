@@ -60,23 +60,27 @@ def ai_action(data, debug = False):
     
     gamma = 0
     beta = 0
-    
+    alpha = 0
+
+    if rank < 3:
+        alpha = - 1200
+        gamma = - 1000
+    '''
     if round_count > 5 and rank > 5:
         gamma += 1000
         beta += 1000
     
     if rank > 7:
         beta += 500
+    '''
+    if  min_bet > 200:
+        gamma += -500
+        beta += -500
     
-    if s_player >= 8 and min_bet > 200:
+    if  min_bet > 400:
         gamma += -1000
-        beta += -1000
-    
-    if s_player >= 8 and min_bet > 400:
-        gamma += -1000
-        beta += -1000
-        
-        
+        beta += -500
+
 
     if len(table_card + self_card) >= 5:
         evaluator = Evaluator()
@@ -88,12 +92,12 @@ def ai_action(data, debug = False):
             return "fold"
         elif pscore > 4000 + gamma:
             return "call"
-        elif pscore > 2000:
+        elif pscore > 2000 + alpha:
             return "raise"
         else:
             return "allin"
             
-    elif betCount > 500:
+    elif round_count<10 and min_bet > 300:
         return "fold"
     else:
         return "call"

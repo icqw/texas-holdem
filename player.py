@@ -37,11 +37,13 @@ def takeAction(action, data, name):
     
     
 def doListen(name):
-    '''
+
     try:
         global ws
-        ws = create_connection("ws://116.62.203.120")
-        ws = create_connection("ws://thegame.trendmicro.com.cn")
+        #ws = create_connection("ws://116.62.203.120")
+        #ws = create_connection("ws://thegame.trendmicro.com.cn")
+        ws = create_connection("ws://10.64.8.41")
+        #ws = create_connection("ws://10.64.8.41")
         ws.send(json.dumps({
             "eventName": "__join",
             "data": {
@@ -53,9 +55,6 @@ def doListen(name):
             msg = json.loads(result)
             event_name = msg["eventName"]
             data = msg["data"]
-            data = json.dumps(data)
-            print event_name
-            #print data
             takeAction(event_name, data, name)
     except Exception, e:
         print e.message
@@ -64,24 +63,26 @@ def doListen(name):
     
     global ws
 #    ws = create_connection("ws://116.62.203.120")
-    ws = create_connection("ws://thegame.trendmicro.com.cn")
+    ws = create_connection("ws://10.64.8.41")
+    
     ws.send(json.dumps({
         "eventName": "__join",
         "data": {
             "playerName": name
         }
     }))
+    
     while 1:
         result = ws.recv()
         msg = json.loads(result)
         event_name = msg["eventName"]
         data = msg["data"]
-        #data = json.dumps(data)
+        #print json.dumps(data)
         print event_name
-        #print data
-        takeAction(event_name, data, name)    
+        takeAction(event_name, data, name)  
     
+     '''   
         
 if __name__ == '__main__':
-    name = 'sparrow'
+    name = 'J0F0MOYFEWA0JTC1'
     doListen(name)
